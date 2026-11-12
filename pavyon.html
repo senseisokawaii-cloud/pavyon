@@ -273,7 +273,7 @@ const rwMat=new THREE.MeshBasicMaterial({map:rwTex,color:0xff60c0,transparent:tr
 // marquee bulbs
 const bulbPos=[];
 for(let z=STAGE_Z1+.4;z<RUN_END;z+=.7)for(const s of[-1,1])bulbPos.push([s*(RUN_W+.02),ST*.5,z,'run',z]);
-for(let a=0;a<TAU;a+=TAU/30)bulbPos.push([Math.cos(a)*(END_R+.09),ST*.5,END_Z+Math.sin(a)*(END_R+.09),'run',8+a]);
+for(let a=0;a<TAU;a+=TAU/30){const bx=Math.cos(a)*(END_R+.09),bz=END_Z+Math.sin(a)*(END_R+.09);if(Math.abs(bx)>RUN_W+.1||bz>END_Z)bulbPos.push([bx,ST*.5,bz,'run',8+a])}
 for(let x=-7.8;x<=7.8;x+=.6)if(Math.abs(Math.abs(x)-6.3)>.9&&Math.abs(x)>RUN_W)bulbPos.push([x,ST*.5,STAGE_Z1+.02,'stage',x]);
 // doorway arch bulbs
 for(let y=ST;y<ST+3.3;y+=.3)for(const s of[-1,1])bulbPos.push([s*1.5,y,STAGE_Z0+.2,'arch',y]);
@@ -370,8 +370,8 @@ inst(new THREE.OctahedronGeometry(.11),std(0xfff6e0,{metalness:1,roughness:.05,e
 chPos.forEach(c=>{const ring=new THREE.Mesh(new THREE.TorusGeometry(1.15,.04,6,40),GOLD);ring.rotation.x=PI/2;ring.position.set(...c);scene.add(ring);
   const rod=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,1.8),GOLD);rod.position.set(c[0],c[1]+.9,c[2]);scene.add(rod);
   const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xffc070,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.28}));gl.scale.set(3.5,3.5,1);gl.position.set(c[0],c[1]-.5,c[2]);scene.add(gl)});
-const ball=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,2),std(0xeeeeee,{metalness:1,roughness:.08,flatShading:true}));ball.position.set(0,10,END_Z);scene.add(ball);
-{const r=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,2),GOLD);r.position.set(0,11.2,END_Z);scene.add(r)}
+const ball=new THREE.Mesh(new THREE.IcosahedronGeometry(.85,2),std(0xeeeeee,{metalness:1,roughness:.08,flatShading:true}));ball.position.set(0,10.6,-5);ball.scale.setScalar(.8);scene.add(ball);
+{const r=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,2),GOLD);r.position.set(0,11.6,-5);scene.add(r)}
 
 // ================= characters =================
 const grad=new THREE.DataTexture(new Uint8Array([95,95,95,255, 175,175,175,255, 255,255,255,255]),3,1,THREE.RGBAFormat);
@@ -886,22 +886,31 @@ $('testFab').onclick=()=>$('testSheet').classList.toggle('on');$('tsClose').oncl
 $('testSheet').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>testEvent(b.dataset.x));
 
 // ================= websocket =================
-let ws=null,wsWanted=false,wsRetry;
+let ws=null,wsWanted=true,wsRetry,wsTry=0;const WS_ALT=['ws://127.0.0.1:21213/','ws://localhost:21213/'];
 function connect(){clearTimeout(wsRetry);if(ws){try{ws.onclose=null;ws.close()}catch(e){}}const url=$('wsUrl').value.trim();
   try{ws=new WebSocket(url)}catch(e){$('wsStatus').textContent='Adres hatalı';return}
   $('wsStatus').textContent='Bağlanıyor…';
   ws.onopen=()=>{$('wsStatus').textContent='✅ Bağlı';$('testFab').classList.add('hide');$('testSheet').classList.remove('on')};
-  ws.onclose=()=>{$('wsStatus').textContent='❌ Bağlantı yok'+(wsWanted?' (3 sn sonra tekrar)':'');if(wsWanted)wsRetry=setTimeout(connect,3000)};
+  ws.onclose=()=>{$('wsStatus').textContent='❌ TikFinity bulunamadı, tekrar deneniyor…';
+    if(wsWanted){wsTry++;const cur=$('wsUrl').value.trim();if(WS_ALT.includes(cur))$('wsUrl').value=WS_ALT[wsTry%2];wsRetry=setTimeout(connect,2500)}};
   ws.onmessage=e=>handleMsg(e.data)}
 let msgCount=0;
-function handleMsg(raw){let m;try{m=JSON.parse(raw)}catch(e){return}
-  const ev=String(m.event||m.type||m.eventName||'').toLowerCase(),d=m.data||m;
+function handleMsg(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return}
+  if(Array.isArray(m)){m.forEach(x=>handleMsg(x));return}
+  const ev=String(m.event||m.type||m.eventName||m.eventType||'').toLowerCase();let d=m.data||m.payload||m;
+  if(typeof d==='string'){try{d=JSON.parse(d)}catch(e){}}
   msgCount++;$('wsStatus').textContent=`✅ Bağlı · ${msgCount} mesaj geldi · son: ${ev||'?'}`;
-  $('wsRaw').textContent=String(raw).slice(0,220);
-  const id=String(d.uniqueId||d.userId||d.user||d.username||d.nickname||''),nick=d.nickname||d.uniqueId||d.username||id;
-  if(ev==='chat'||ev==='comment'||ev==='message'){if(id)onChat(id,nick,d.comment||d.text||d.message||'')}
-  else if(ev==='gift'){if(d.giftType===1&&d.repeatEnd===false)return;if(id)onGift(id,nick,(d.diamondCount||d.coins||d.diamonds||1)*(d.repeatCount||d.count||1),d.giftName)}
-  else if(ev==='like')onLike(id,nick,d.likeCount||d.count||1,d.totalLikeCount)}
+  if(ev!=='config'){$('wsRaw').textContent=(typeof raw==='string'?raw:JSON.stringify(raw)).slice(0,300)}
+  const u=(d.user&&typeof d.user==='object')?d.user:(d.userDetails||d.sender||{});
+  const id=String(d.uniqueId||u.uniqueId||u.unique_id||d.userId||u.userId||u.id||(typeof d.user==='string'?d.user:'')||d.username||u.username||d.nickname||u.nickname||'');
+  const nick=String(d.nickname||u.nickname||u.nickName||d.uniqueId||u.uniqueId||d.username||id);
+  const g=d.giftDetails||d.gift||{};
+  if(/chat|comment|message/.test(ev)){if(id)onChat(id,nick,String(d.comment||d.text||d.message||d.content||''))}
+  else if(ev.includes('gift')){if((d.giftType===1||g.giftType===1)&&d.repeatEnd===false)return;
+    const dia=d.diamondCount||g.diamondCount||g.diamond_count||d.coins||d.diamonds||1,cnt=d.repeatCount||d.count||d.amount||1;
+    if(id)onGift(id,nick,dia*cnt,d.giftName||g.giftName||g.name)}
+  else if(ev.includes('like'))onLike(id,nick,d.likeCount||d.count||1,d.totalLikeCount||d.totalLikes)
+  else if(ev==='member'||ev==='join'){/* katılım bildirimi: yorum yazana kadar içeri alınmaz */}}
 
 // ================= panel =================
 const panel=$('panel');
@@ -919,7 +928,7 @@ bind('outline','outline',()=>{for(const c of chars.values())c.outs.forEach(o=>o.
 setTimeout(()=>$('hint').style.opacity=0,7000);
 
 updateRank();updateLikes();requestAnimationFrame(loop);
-mdlStatus();loadModels();
+mdlStatus();loadModels();connect();
 $('mdlFiles').addEventListener('change',e=>{const fs=[...e.target.files].sort((a,b)=>/^karakter/i.test(a.name)?-1:1);loadModels(fs)});
 })();
 </script>

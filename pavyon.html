@@ -118,7 +118,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v1b</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v1c</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -221,7 +221,7 @@ function groundY(x,z){const ax=Math.abs(x);
   return 0}
 
 // ================= lights =================
-scene.add(new THREE.HemisphereLight(0x5a3a8a,0x0c0208,.3));
+scene.add(new THREE.HemisphereLight(0x6a4a9a,0x140410,.42));
 const key=new THREE.DirectionalLight(0xffd2b0,.16);key.position.set(4,16,22);scene.add(key);
 const rim=new THREE.DirectionalLight(0xff4fb0,.22);rim.position.set(-6,8,-20);scene.add(rim);
 const warm=[[-8,8.5,-1],[8,8.5,-1],[0,8.5,9]].map(p=>{const l=new THREE.PointLight(0xff9a50,.3,16,1.6);l.position.set(...p);scene.add(l);return l});
@@ -641,14 +641,14 @@ function createChar(id,nick){
   if(live>=S.maxChars&&old)leave(old);
   const s=getSeat();if(!s)return null;
   const b=glbReady()?buildGlbChar():buildChar(genderPref.get(id));const c=Object.assign(b,{id,nick,seat:s,spot:null,path:[],mode:'walk',onArrive:null,lastActive:performance.now(),sitT:0,gy:ST,
-    danceUntil:0,throwLeft:0,throwT:0,clapUntil:0,seed:Math.random()*10,style:Math.random()*4|0,leaving:false,sc:0,bubble:null,bubbleT:0,label:null,labelKind:null,
+    danceUntil:0,throwLeft:0,throwT:0,clapUntil:0,seed:Math.random()*10,style:Math.random()*8|0,styleT:0,leaving:false,sc:0,bubble:null,bubbleT:0,label:null,labelKind:null,
     waiting:false,faceTo:0,bottles:0,bottle:null,star:false,blinkT:rnd(1,4),fdur:0,labelY:b.glb?2.2:2.55});
   s.occ=c;c.root.position.set(rnd(-.6,.6),ST,STAGE_Z0+.1);c.root.scale.setScalar(.01);
-  scene.add(c.root);chars.set(id,c);refreshLabel(c);goSeat(c);requestFocus(c,3,true);return c}
+  scene.add(c.root);chars.set(id,c);refreshLabel(c);goSeat(c);if(!seenIds.has(id)){seenIds.add(id);requestFocus(c,3.5,true)}return c}
 function setLabel(c,kind){if(c.label&&c.labelKind===kind)return;disposeSprite(c.label);c.labelKind=kind;c.label=makeLabel(c.nick,kind);c.label.position.y=c.labelY||2.55;c.root.add(c.label)}
 function refreshLabel(c){c.crown.visible=c.id===patronId;setLabel(c,c.id===patronId?'patron':(c.seat&&c.seat.vip?'vip':''))}
 function goSeat(c){route(c,{seat:c.seat});c.onArrive=()=>{c.mode='seated';c.faceTo=c.seat.rot}}
-function freeSpot(star,likeOnly){if(star&&!STAR_SPOT.occ)return STAR_SPOT;const fr=DSPOTS.filter(s=>!s.occ);if(!fr.length)return null;const pref=fr.filter(s=>likeOnly?!s.run:s.run);return pick(pref.length?pref:fr)}
+function freeSpot(star,likeOnly){if(star&&!STAR_SPOT.occ)return STAR_SPOT;const fr=DSPOTS.filter(s=>!s.occ);if(!fr.length)return null;const pref=fr.filter(s=>s.run);return pick(pref.length?pref:fr)}
 function goStage(c,star,likeOnly){
   if(c.spot){if(star&&!c.spot.star&&!STAR_SPOT.occ){c.spot.occ=null;c.spot=STAR_SPOT;STAR_SPOT.occ=c;route(c,{spot:STAR_SPOT});c.onArrive=()=>onStage(c)}return}
   const sp=freeSpot(star,likeOnly);if(!sp){c.waiting=true;return}
@@ -790,10 +790,10 @@ let flashT=0;
 
 // ================= camera =================
 let focus=null;const focusQ=[];let shotIdx=0,shotT=0,manual=false,drag=null,camAng=0,camR=24,camH=9;
-const SHOTS=[{p:[0,9.5,21],l:[0,1.4,-5]},{p:[0,4.4,13],l:[0,2.3,-7]},{p:[4.5,6.5,-4],l:[-1,1.8,-15.5]},{p:[-5.5,8,13],l:[0,1.4,-5]},{p:[-3,3.6,-6.5],l:[1,2.2,4]}];let lastLow=-99,stageBusy=false,curList=null;
-const HALL=[{p:[9.5,3.4,9],l:[2,1,-3]},{p:[-12,7,14],l:[-4,.8,-2]},{p:[-6.5,4.6,-10.5],l:[-6.5,1,4]},{p:[7,5.5,-10],l:[7,1,6]},{p:[0,10,17],l:[0,0,1]},{p:[-9.7,2.8,12],l:[-7,1.2,-6]}];
+const SHOTS=[{p:[0,6.8,12.5],l:[0,1.8,-6]},{p:[0,8.5,17],l:[0,1.3,-4]}];const seenIds=new Set();let lastLow=-99,stageBusy=false,curList=null;
+const HALL=[{p:[0,8,16],l:[0,1,-1.5]},{p:[-6,7.2,13.5],l:[-1.5,1,-3]},{p:[6,7.2,13.5],l:[1.5,1,-3]}];
 function requestFocus(c,dur,low){if(!S.autoCam)return;const it={c,dur,t:0,low:!!low};
-  if(low){if(focus||focusQ.length||tNow-lastLow<9)return;lastLow=tNow;focus=it;return}
+  if(low){if(focus||focusQ.length||tNow-lastLow<6)return;lastLow=tNow;focus=it;return}
   if(!focus||focus.low||focus.c===c){focus=it;return}
   if(!focusQ.some(q=>q.c===c)&&focusQ.length<6)focusQ.push(it)}
 const camLook=new V3(0,2,-6),tV=new V3(),tL=new V3();camera.position.set(0,8.5,23);
@@ -806,9 +806,9 @@ function updateCamera(dt,t){
   if(focus){focus.t+=dt;if(!chars.has(focus.c.id)||chars.get(focus.c.id)!==focus.c||focus.t>focus.dur){focus=focusQ.shift()||null}}
   if(focus&&S.autoCam){const p=focus.c.root.position;const port=camera.aspect<1;const zin=Math.min(1,focus.t/.8);const dist=lerp(5.5,3.3,zin);tV.set(p.x+.9+Math.sin(t*.4)*.5,p.y+1.7,p.z+dist);tL.set(p.x,p.y+1.5,p.z)}
   else if(manual){tV.set(Math.sin(camAng)*camR,camH,Math.cos(camAng)*camR-4);tL.set(0,1.8,-4)}
-  else{const list=stageBusy?SHOTS:HALL;if(list!==curList){curList=list;shotIdx=0;shotT=0}shotT+=dt;if(S.autoCam&&shotT>(stageBusy?9:12)){shotT=0;shotIdx=(shotIdx+1)%list.length}const s=list[S.autoCam?shotIdx%list.length:0];
-    tV.set(s.p[0]+Math.sin(t*.17)*1.6,s.p[1]+Math.sin(t*.23)*.4,s.p[2]);tL.set(...s.l)}
-  const k=Math.min(1,dt*(focus?3:1));camera.position.lerp(tV,k);camLook.lerp(tL,k);camera.lookAt(camLook)}
+  else{const list=stageBusy?SHOTS:HALL;if(list!==curList){curList=list;shotIdx=0;shotT=0}shotT+=dt;if(S.autoCam&&shotT>40){shotT=0;shotIdx=(shotIdx+1)%list.length}const s=list[S.autoCam?shotIdx%list.length:0];
+    tV.set(s.p[0]+Math.sin(t*.08)*.5,s.p[1]+Math.sin(t*.11)*.15,s.p[2]);tL.set(...s.l)}
+  const k=Math.min(1,dt*(focus?3:.5));camera.position.lerp(tV,k);camLook.lerp(tL,k);camera.lookAt(camLook)}
 
 // ================= animation =================
 const angLerp=(a,b,k)=>{const d=((b-a+PI)%TAU+TAU)%TAU-PI;return a+d*k};
@@ -826,10 +826,10 @@ function animate(c,dt,t){
   c.sitT+=((c.mode==='seated'&&!wild?1:0)-c.sitT)*Math.min(1,dt*5);
   c.gy+=(groundY(p.x,p.z)-c.gy)*Math.min(1,dt*10);
   if(c.glb){animGlb(c,dt,t,dancing);return}
-  {const z=zoneOf(p);const tb=c.mode==='dance'?1.15:(z!=='floor'?(c.seat&&c.seat.vip&&c.mode==='seated'?.55:.9):(wild?.5:.38));
+  {const z=zoneOf(p);const tb=c.mode==='dance'?1.25:(z!=='floor'?(c.seat&&c.seat.vip&&c.mode==='seated'?.65:.95):(wild?.6:.5));
    c.bri+=(tb-c.bri)*Math.min(1,dt*2.5);c.mat.color.setScalar(c.bri)}
   const k=Math.min(1,dt*12),ph=t+c.seed,beat=Math.abs(Math.sin(t*W/2+c.seed*.3));
-  let face=c.faceTo,bY=0,bRz=0,bRy=0,hRx=0,hRy=0;
+  let face=c.faceTo,bY=0,bX=0,bRz=0,bRy=0,hRx=0,hRy=0;
   const sh=[[0,0,-.1],[0,0,.1]],el=[-.15,-.15],hp=[0,0],kn=[0,0];
   if(c.mode==='walk'){const s=Math.sin(ph*(c.speed?11:8));hp[0]=s*.55;hp[1]=-s*.55;kn[0]=Math.max(0,-s)*.9+.1;kn[1]=Math.max(0,s)*.9+.1;
     sh[0]=[-s*.45,0,-.12];sh[1]=[s*.45,0,.12];el[0]=el[1]=-.35;bY=Math.abs(Math.cos(ph*(c.speed?11:8)))*.05}
@@ -838,7 +838,19 @@ function animate(c,dt,t){
       case 0:sh[0]=[-.15,0,-(2.65+a*.18)];sh[1]=[-.15,0,2.65-a*.18];el[0]=el[1]=-.45-.3*Math.abs(a);bRz=a*.17;break;
       case 1:sh[0]=[-.55,0,-.35];sh[1]=[-.55,0,.35];el[0]=el[1]=-1.7;bRy=Math.sin(t*18)*.14;bRz=a*.06;break;
       case 2:sh[0]=[0,0,-1.45-a*.15];sh[1]=[0,0,1.45-a*.15];el[0]=-.25;el[1]=-.25;face+=Math.sin(t*.9+c.seed)*.9;hp[0]=-.6*Math.max(0,a);hp[1]=-.6*Math.max(0,-a);kn[0]=1.1*Math.max(0,a);kn[1]=1.1*Math.max(0,-a);break;
-      default:{const up=b2>0?1:0;sh[1]=up?[-.3,0,2.4]:[.0,0,.65];el[1]=up?-.15:-1.6;sh[0]=up?[0,0,-.65]:[-.3,0,-2.4];el[0]=up?-1.6:-.15;bRz=(up?-1:1)*.12}}
+      case 3:{const up=b2>0?1:0;sh[1]=up?[-.3,0,2.4]:[.0,0,.65];el[1]=up?-.15:-1.6;sh[0]=up?[0,0,-.65]:[-.3,0,-2.4];el[0]=up?-1.6:-.15;bRz=(up?-1:1)*.12;break}
+      case 4:{/* kıvırtma: hızlı kalça titretme + yılan kollar */const sh2=Math.sin(t*22)*.22,wv=Math.sin(t*3.2+c.seed);
+        bRz=sh2+Math.sin(t*W/4)*.12;bX=Math.sin(t*W/4)*.07;bY=-.06-Math.abs(Math.sin(t*W/4))*.05;
+        sh[0]=[-.2,0,-(2.3+wv*.35)];sh[1]=[-.6+wv*.3,0,1.2+wv*.5];el[0]=-.7-wv*.4;el[1]=-1.1+wv*.5;
+        kn[0]=.35+Math.max(0,Math.sin(t*22))*.12;kn[1]=.35+Math.max(0,-Math.sin(t*22))*.12;hp[0]=hp[1]=-.2;hRx=.05;hRy=-bRz*1.5;break}
+      case 5:{/* çiftetelli: kollar yukarı, parmak şıklatma, omuz titreme, dönüş */const sn=Math.sin(t*W);
+        sh[0]=[-.25,0,-(2.2+sn*.1)];sh[1]=[-.25,0,2.2-sn*.1];el[0]=el[1]=-1.1-Math.abs(sn)*.35;bRy=Math.sin(t*20)*.2;bX=Math.sin(t*W/4)*.1;
+        face+=Math.sin(t*.7+c.seed)*1.6;kn[0]=.3+.25*Math.max(0,a);kn[1]=.3+.25*Math.max(0,-a);break}
+      case 6:{/* dalga kollar */const w1=Math.sin(t*3+c.seed),w2=Math.sin(t*3+c.seed+1.6);
+        sh[0]=[0,0,-(1.45+w1*.45)];sh[1]=[0,0,1.45+w2*.45];el[0]=-.5-w1*.5;el[1]=-.5-w2*.5;bRz=Math.sin(t*1.5)*.14;bX=Math.sin(t*1.5)*.06;hRy=Math.sin(t*1.5)*.25;break}
+      default:{/* tepinme + alkış */const q=Math.sin(t*W);sh[0]=[-.4,0,-(2.5+q*.15)];sh[1]=[-.4,0,2.5+q*.15];el[0]=el[1]=-.9-Math.abs(q)*.4;
+        hp[0]=-.5*Math.max(0,a);hp[1]=-.5*Math.max(0,-a);kn[0]=1.0*Math.max(0,a);kn[1]=1.0*Math.max(0,-a);bRz=a*.08}}
+    if(c.mode==='dance'){c.styleT+=dt;if(c.styleT>9){c.styleT=0;c.style=(c.style+1+(Math.random()*7|0))%8}}
     if(c.star)face+=Math.sin(t*.6)*.6}
   else{const s=c.sitT;hp[0]=hp[1]=-PI/2*s;kn[0]=kn[1]=PI/2*s;
     if(tNow<c.clapUntil){const q=Math.sin(t*20)*.18;sh[0]=[-1.05,0,.3+q];sh[1]=[-1.05,0,-.3-q];el[0]=el[1]=-1.0}
@@ -858,7 +870,7 @@ function animate(c,dt,t){
   r.rotation.y=angLerp(r.rotation.y,face,Math.min(1,dt*6));
   for(let i=0;i<2;i++){const A=c.arms[i].sh.rotation;A.x=lerp(A.x,sh[i][0],k);A.y=lerp(A.y,sh[i][1],k);A.z=lerp(A.z,sh[i][2],k);c.arms[i].el.rotation.x=lerp(c.arms[i].el.rotation.x,el[i],k);
     c.legs[i].hip.rotation.x=lerp(c.legs[i].hip.rotation.x,hp[i],k);c.legs[i].knee.rotation.x=lerp(c.legs[i].knee.rotation.x,kn[i],k)}
-  c.body.rotation.z=lerp(c.body.rotation.z,bRz,k);c.body.rotation.y=lerp(c.body.rotation.y,bRy,k);
+  c.body.rotation.z=lerp(c.body.rotation.z,bRz,k);c.body.position.x=lerp(c.body.position.x,bX,k);c.body.rotation.y=lerp(c.body.rotation.y,bRy,k);
   c.head.rotation.x=lerp(c.head.rotation.x,hRx,k);c.head.rotation.y=lerp(c.head.rotation.y,hRy,k*.5);
   // knee bend lowers body slightly
   const kneeDrop=(1-c.sitT)*(Math.max(c.legs[0].knee.rotation.x,c.legs[1].knee.rotation.x)>.2&&dancing?beat*.06:0);

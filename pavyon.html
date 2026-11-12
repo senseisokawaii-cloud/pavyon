@@ -55,6 +55,12 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
   background:rgba(10,3,12,.66);border-left:calc(var(--u)*.6) solid var(--g2)}
 .fd b{color:#ffe7a0}
 @keyframes fin{from{transform:translateX(-30px);opacity:0}}
+ #info{position:absolute;left:50%;top:57%;transform:translateX(-50%);z-index:2;pointer-events:none;max-width:86%;text-align:center}
+#info span{display:inline-block;padding:calc(var(--u)*1.2) calc(var(--u)*3.2);border-radius:999px;font-size:calc(var(--u)*3);font-weight:600;line-height:1.3;
+  background:linear-gradient(160deg,rgba(40,12,34,.88),rgba(10,3,12,.85));border:calc(var(--u)*.25) solid rgba(242,201,106,.6);box-shadow:0 0 calc(var(--u)*2.5) rgba(0,0,0,.7);
+  transition:opacity .6s,transform .6s;opacity:0;transform:translateY(8px)}
+#info span.on{opacity:1;transform:none}
+#info b{color:#ffe7a0}
 #hint{position:absolute;right:10px;bottom:10px;opacity:.55;font-size:12px;transition:opacity 1s;pointer-events:none;z-index:2}
 #panel{position:fixed;right:12px;top:12px;width:330px;color:#eee;border-radius:14px;padding:14px;display:none;font-size:13px;max-height:92vh;overflow:auto;z-index:10;--u:4px}
 #panel h3{margin:0 0 8px;font-family:Cinzel,serif;color:var(--g2);font-size:17px}
@@ -93,6 +99,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 <div id="banner" class="glass"><div class="ic" id="bIc">💸</div><div style="min-width:0"><div class="t1" id="bT1"></div><div class="t2" id="bT2"></div></div></div>
 <div id="toast"></div>
 <div id="feed"></div>
+<div id="info"><span id="infoTx"></span></div>
 <div id="hint">H: kontrol paneli · T: deneme tuşu</div>
 </div>
 <button id="testFab">🧪 Deneme</button>
@@ -104,14 +111,14 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
     <button data-x="join">👋 Müşteri gelsin</button><button data-x="guests">👥 +10 müşteri</button>
     <button data-x="chat">💬 Yorum yap</button><button data-x="dans">🎤 Dans (1)</button>
     <button data-x="para">💸 Para saç</button><button data-x="sise">💥 Şişe patlat</button>
-    <button data-x="yildiz">⭐ Gecenin yıldızı</button><button data-x="like">❤️ +1000 beğeni</button>
+    <button data-x="yildiz">⭐ Gecenin yıldızı</button><button data-x="like">❤️ +1000 beğeni</button><button data-x="likeStage">💗 Beğeniyle sahne</button>
     <button data-x="wild">🔥 Çılgın mod</button><button data-x="clear">🚪 Herkesi çıkar</button>
   </div>
   <div class="row2"><input id="tsCoins" type="number" min="1" value="50"><button data-x="gift">🎁 Bu kadar coin at</button></div>
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol</h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v1b</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -122,13 +129,14 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
   <h4>Test</h4>
   <button data-t="guests">+10 müşteri</button><button data-t="chat">Yorum</button><button data-t="dans">Dans (1)</button>
   <button data-t="para">Para saç</button><button data-t="sise">Şişe patlat</button><button data-t="yildiz">Gecenin yıldızı</button>
-  <button data-t="like">+1000 beğeni</button><button data-t="clear">Herkesi çıkar</button>
+  <button data-t="like">+1000 beğeni</button><button data-t="likeStage">Beğeniyle sahne</button><button data-t="clear">Herkesi çıkar</button>
 
   <h4>Hediye → Event (coin eşiği)</h4>
   <div class="g2">
     <div><label>💸 Para saç</label><input type="number" id="cMoney" min="1"></div>
     <div><label>💥 Şişe + VIP</label><input type="number" id="cBottle" min="1"></div>
     <div><label>⭐ Gecenin yıldızı</label><input type="number" id="cStar" min="1"></div>
+    <div><label>❤️ Beğeniyle sahne</label><input type="number" id="cLikes" min="1"></div>
     <div><label>Çıkış (dk)</label><input type="number" id="idleMin" min="1"></div>
   </div>
   <label>Hediye adına göre (her satır: <i>Hediye Adı=para,sise</i>)</label>
@@ -140,6 +148,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
   <label>Bilgisayardan dene (.fbx dosyalarını seç)</label><input type="file" id="mdlFiles" multiple accept=".fbx">
   <label>En fazla kişi (modellerde kasma olursa düşür)</label><input type="number" id="maxChars" min="10">
   <h4>Görünüm</h4>
+  <label><input type="checkbox" id="info1"> Ekranda bilgi yazıları (nasıl oynanır)</label>
   <label><input type="checkbox" id="autoCam"> Otomatik kamera</label>
   <label><input type="checkbox" id="outline"> Karakter kontur çizgisi</label>
 </div>
@@ -153,8 +162,9 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 try{await Promise.race([Promise.all([document.fonts.load('600 40px Poppins'),document.fonts.load('900 40px Cinzel')]),new Promise(r=>setTimeout(r,1800))])}catch(e){}
 
 // ================= settings =================
-const S={idleMin:10,cMoney:5,cBottle:30,cStar:100,sign:'PAVYON',autoCam:true,outline:true,rules:'',maxChars:90};
+const S={idleMin:10,cMoney:5,cBottle:30,cStar:100,sign:'PAVYON',autoCam:true,outline:true,rules:'',maxChars:90,cLikes:200,info:true};
 try{Object.assign(S,JSON.parse(localStorage.getItem('pavyon3d_v3')||'{}'))}catch(e){}
+if(S.cLikes===150)S.cLikes=200;
 const saveS=()=>{try{localStorage.setItem('pavyon3d_v3',JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const V3=THREE.Vector3,TAU=Math.PI*2,PI=Math.PI;
@@ -413,8 +423,8 @@ const SKIN=[0xffd9bd,0xf2c19c,0xe0a77d,0xc98c5e,0xa56a42],HAIRC=[0x1a1009,0x2f1b
 const darken=(c,k)=>new THREE.Color(c).multiplyScalar(k).getHex();
 const mixHex=(a,b,k)=>new THREE.Color(a).lerp(new THREE.Color(b),k).getHex();
 
-function buildChar(){
-  const F=Math.random()<.5,skin=pick(SKIN),hair=pick(HAIRC),root=new THREE.Group(),body=new THREE.Group();root.add(body);
+function buildChar(forceF){
+  const F=forceF===undefined?Math.random()<.5:!!forceF,skin=pick(SKIN),hair=pick(HAIRC),root=new THREE.Group(),body=new THREE.Group();root.add(body);
   const meshes=[],outs=[];const cm=TOON.clone();cm.color.setScalar(.38);
   const mk=(b,parent,noOl)=>{const r=b.build();const m=new THREE.Mesh(r.geo,cm);parent.add(m);meshes.push(m);if(noOl){r.og.dispose();return}const o=new THREE.Mesh(r.og,OUTL);o.visible=S.outline;parent.add(o);outs.push(o)};
   let top,sleeve,pants;
@@ -630,7 +640,7 @@ function createChar(id,nick){
   let live=0,old=null;for(const o of chars.values())if(!o.leaving){live++;if(o.seat&&!o.seat.vip&&o.mode==='seated'&&(!old||o.lastActive<old.lastActive))old=o}
   if(live>=S.maxChars&&old)leave(old);
   const s=getSeat();if(!s)return null;
-  const b=glbReady()?buildGlbChar():buildChar();const c=Object.assign(b,{id,nick,seat:s,spot:null,path:[],mode:'walk',onArrive:null,lastActive:performance.now(),sitT:0,gy:ST,
+  const b=glbReady()?buildGlbChar():buildChar(genderPref.get(id));const c=Object.assign(b,{id,nick,seat:s,spot:null,path:[],mode:'walk',onArrive:null,lastActive:performance.now(),sitT:0,gy:ST,
     danceUntil:0,throwLeft:0,throwT:0,clapUntil:0,seed:Math.random()*10,style:Math.random()*4|0,leaving:false,sc:0,bubble:null,bubbleT:0,label:null,labelKind:null,
     waiting:false,faceTo:0,bottles:0,bottle:null,star:false,blinkT:rnd(1,4),fdur:0,labelY:b.glb?2.2:2.55});
   s.occ=c;c.root.position.set(rnd(-.6,.6),ST,STAGE_Z0+.1);c.root.scale.setScalar(.01);
@@ -638,14 +648,14 @@ function createChar(id,nick){
 function setLabel(c,kind){if(c.label&&c.labelKind===kind)return;disposeSprite(c.label);c.labelKind=kind;c.label=makeLabel(c.nick,kind);c.label.position.y=c.labelY||2.55;c.root.add(c.label)}
 function refreshLabel(c){c.crown.visible=c.id===patronId;setLabel(c,c.id===patronId?'patron':(c.seat&&c.seat.vip?'vip':''))}
 function goSeat(c){route(c,{seat:c.seat});c.onArrive=()=>{c.mode='seated';c.faceTo=c.seat.rot}}
-function freeSpot(star){if(star&&!STAR_SPOT.occ)return STAR_SPOT;const fr=DSPOTS.filter(s=>!s.occ);if(!fr.length)return null;const run=fr.filter(s=>s.run);return pick(run.length?run:fr)}
-function goStage(c,star){
+function freeSpot(star,likeOnly){if(star&&!STAR_SPOT.occ)return STAR_SPOT;const fr=DSPOTS.filter(s=>!s.occ);if(!fr.length)return null;const pref=fr.filter(s=>likeOnly?!s.run:s.run);return pick(pref.length?pref:fr)}
+function goStage(c,star,likeOnly){
   if(c.spot){if(star&&!c.spot.star&&!STAR_SPOT.occ){c.spot.occ=null;c.spot=STAR_SPOT;STAR_SPOT.occ=c;route(c,{spot:STAR_SPOT});c.onArrive=()=>onStage(c)}return}
-  const sp=freeSpot(star);if(!sp){c.waiting=true;return}
+  const sp=freeSpot(star,likeOnly);if(!sp){c.waiting=true;return}
   c.waiting=false;c.spot=sp;sp.occ=c;route(c,{spot:sp});c.speed=3.2;c.onArrive=()=>onStage(c)}
-function onStage(c){c.mode='dance';c.faceTo=0;c.speed=0;requestFocus(c,c.fdur||5);
-  for(const o of chars.values())if(o.mode==='seated'&&Math.random()<.55)o.clapUntil=tNow+rnd(1.5,3)}
-function endDance(c){if(c.spot){c.spot.occ=null;c.spot=null}c.star=false;if(starChar===c)starChar=null;
+function onStage(c){c.mode='dance';c.faceTo=0;c.speed=0;stageBusy=true;c.danceUntil=Math.max(c.danceUntil,tNow)+(c.pendDance||15);c.pendDance=0;if(!c.likeDance){if(c.fdur>0)requestFocus(c,c.fdur);
+  for(const o of chars.values())if(o.mode==='seated'&&Math.random()<.55)o.clapUntil=tNow+rnd(1.5,3)}}
+function endDance(c){if(c.spot){c.spot.occ=null;c.spot=null}c.star=false;c.likeDance=false;if(starChar===c)starChar=null;
   if(c.bottle){(c.glb?c.hand:c.arms[1].hand).remove(c.bottle);c.bottle=null;c.bottles=0}
   if(c.seat)goSeat(c);else leave(c);
   for(const o of chars.values())if(o.waiting&&!o.leaving){goStage(o,o.star);break}}
@@ -738,7 +748,22 @@ function touch(id,nick){let c=chars.get(id);
   if(c&&c.leaving){const s=getSeat();if(s){c.leaving=false;c.seat=s;s.occ=c;goSeat(c);refreshLabel(c)}else return null}
   if(!c){c=createChar(id,nick);if(c)feed(`✨ <b>${esc(nick)}</b> mekana geldi`)}
   if(!c)return null;if(nick&&c.nick!==nick){c.nick=nick;c.labelKind='_';refreshLabel(c)}c.lastActive=performance.now();return c}
-function onChat(id,nick,text){const c=touch(id,nick);if(c)say(c,text)}
+const genderPref=new Map();
+function swapGender(c,F){if(!c||c.glb)return;if(F===undefined)F=!c.F;genderPref.set(c.id,F);if(c.F===F)return;
+  const b=buildChar(F);
+  c.root.remove(c.body);c.root.remove(c.shadow);
+  c.meshes.forEach(m=>m.geometry.dispose());c.outs.forEach(m=>m.geometry.dispose());if(c.mat)c.mat.dispose();c.shadow.geometry.dispose();c.shadow.material.dispose();
+  c.root.add(b.body,b.shadow);
+  Object.assign(c,{body:b.body,legs:b.legs,arms:b.arms,head:b.head,crown:b.crown,shadow:b.shadow,meshes:b.meshes,outs:b.outs,F,eyes:b.eyes,mouth:b.mouth,mouthOpen:b.mouthOpen,skirt:b.skirt,mat:b.mat});
+  c.mat.color.setScalar(c.bri||.38);c.bottle=null;c.bottles=0;c.labelKind='_';refreshLabel(c);
+  const wp=c.root.position;for(let i=0;i<40;i++)spark(new V3(wp.x,wp.y+1.2,wp.z),new V3(rnd(-2,2),rnd(0,3),rnd(-2,2)),pick([0xffe08a,0xff8ad0,0xffffff]),rnd(.4,.9),2)}
+function genderCmd(text){const t=String(text).toLocaleLowerCase('tr').trim();
+  if(/^(kadın|kadin|kız|kiz|bayan)(\s|$|[!.,])/.test(t))return true;
+  if(/^(erkek|adam|bay)(\s|$|[!.,])/.test(t))return false;
+  if(/^(değiş|degis|değiştir|degistir)(\s|$|[!.,])/.test(t))return 'toggle';
+  return null}
+function onChat(id,nick,text){const c=touch(id,nick);if(!c)return;const g=genderCmd(text);
+  if(g!==null){swapGender(c,g==='toggle'?undefined:g)}say(c,text)}
 function parseRules(){const m=new Map();String(S.rules||'').split('\n').forEach(l=>{const i=l.indexOf('=');if(i<1)return;m.set(l.slice(0,i).trim().toLowerCase(),new Set(l.slice(i+1).split(',').map(x=>x.trim().toLowerCase().replace('ş','s').replace('ı','i')).filter(Boolean)))});return m}
 let RULES=parseRules();
 function onGift(id,nick,coins,giftName){coins=Math.max(1,coins|0);const c=touch(id,nick);
@@ -746,21 +771,27 @@ function onGift(id,nick,coins,giftName){coins=Math.max(1,coins|0);const c=touch(
   if(!c){updateRank();return}
   let ev=giftName&&RULES.get(String(giftName).toLowerCase());
   if(!ev){ev=new Set(['dans']);if(coins>=S.cMoney)ev.add('para');if(coins>=S.cBottle)ev.add('sise');if(coins>=S.cStar)ev.add('yildiz')}
-  c.danceUntil=Math.max(c.danceUntil,tNow)+Math.min(120,10+coins*.4);
+  {const add=Math.min(150,20+coins)+(ev.has('yildiz')?15:0);if(c.mode==='dance')c.danceUntil=Math.max(c.danceUntil,tNow)+add;else c.pendDance=(c.pendDance||0)+add}
   const star=ev.has('yildiz');
   if(ev.has('para')){c.throwLeft+=Math.min(400,25+coins*3);banner('💸','PARA SAÇIYOR',c.nick)}
   if(ev.has('sise')){assignVIP(c);c.bottles++;banner('💥','ŞİŞE PATLATIYOR',c.nick)}
-  if(star){c.star=true;starChar=c;rainLeft=Math.min(1200,rainLeft+300+coins*2);confettiBurst(140);banner('⭐','GECENİN YILDIZI',c.nick);c.danceUntil+=15}
+  if(star){c.star=true;starChar=c;rainLeft=Math.min(1200,rainLeft+300+coins*2);confettiBurst(140);banner('⭐','GECENİN YILDIZI',c.nick)}
   if(!ev.has('para')&&!ev.has('sise')&&!star)feed(`🎤 <b>${esc(c.nick)}</b> sahneye çıktı`);else feed(`🎁 <b>${esc(c.nick)}</b> · ${fmt(coins)} coin`);
-  c.fdur=star?12:ev.has('sise')?8:ev.has('para')?6:4.5;goStage(c,star);if(c.mode==='dance')requestFocus(c,c.fdur);updateRank();refreshLabel(c)}
+  if(c.likeDance&&c.spot&&!c.spot.run){c.spot.occ=null;c.spot=null}c.likeDance=false;
+  c.fdur=star?14:ev.has('sise')?10:ev.has('para')?8:0;goStage(c,star);if(c.mode==='dance'&&c.fdur>0)requestFocus(c,c.fdur);updateRank();refreshLabel(c)}
+const likeCnt=new Map();
 function onLike(id,nick,count,total){const prev=totalLikes;totalLikes=total!=null?Math.max(totalLikes,total):totalLikes+count;
+  if(id){const n=(likeCnt.get(id)||0)+(+count||1);
+    if(n>=S.cLikes){const c=touch(id,nick);if(c&&!c.spot&&c.mode!=='dance'){likeCnt.set(id,0);c.likeDance=true;c.fdur=0;c.pendDance=15;goStage(c,false,true)}else likeCnt.set(id,n)}
+    else likeCnt.set(id,n)}
   const c=id&&chars.get(id);if(c)c.clapUntil=tNow+2.5;
   for(const m of MILES)if(prev<m&&totalLikes>=m){wildUntil=tNow+12;toast('🔥 '+fmt(m)+' 🔥');confettiBurst(200);rainLeft+=200}updateLikes()}
 let flashT=0;
 
 // ================= camera =================
 let focus=null;const focusQ=[];let shotIdx=0,shotT=0,manual=false,drag=null,camAng=0,camR=24,camH=9;
-const SHOTS=[{p:[0,9.5,21],l:[0,1.4,-5]},{p:[0,4.4,13],l:[0,2.3,-7]},{p:[4.5,6.5,-4],l:[-1,1.8,-15.5]},{p:[-5.5,8,13],l:[0,1.4,-5]},{p:[-3,3.6,-6.5],l:[1,2.2,4]}];let lastLow=-99;
+const SHOTS=[{p:[0,9.5,21],l:[0,1.4,-5]},{p:[0,4.4,13],l:[0,2.3,-7]},{p:[4.5,6.5,-4],l:[-1,1.8,-15.5]},{p:[-5.5,8,13],l:[0,1.4,-5]},{p:[-3,3.6,-6.5],l:[1,2.2,4]}];let lastLow=-99,stageBusy=false,curList=null;
+const HALL=[{p:[9.5,3.4,9],l:[2,1,-3]},{p:[-12,7,14],l:[-4,.8,-2]},{p:[-6.5,4.6,-10.5],l:[-6.5,1,4]},{p:[7,5.5,-10],l:[7,1,6]},{p:[0,10,17],l:[0,0,1]},{p:[-9.7,2.8,12],l:[-7,1.2,-6]}];
 function requestFocus(c,dur,low){if(!S.autoCam)return;const it={c,dur,t:0,low:!!low};
   if(low){if(focus||focusQ.length||tNow-lastLow<9)return;lastLow=tNow;focus=it;return}
   if(!focus||focus.low||focus.c===c){focus=it;return}
@@ -773,11 +804,11 @@ renderer.domElement.addEventListener('wheel',e=>{manual=true;camR=Math.max(6,Mat
 renderer.domElement.addEventListener('dblclick',()=>{manual=false});
 function updateCamera(dt,t){
   if(focus){focus.t+=dt;if(!chars.has(focus.c.id)||chars.get(focus.c.id)!==focus.c||focus.t>focus.dur){focus=focusQ.shift()||null}}
-  if(focus&&S.autoCam){const p=focus.c.root.position;const port=camera.aspect<1;const zin=Math.min(1,focus.t/1.2);const dist=lerp(5.5,3.3,zin);tV.set(p.x+.9+Math.sin(t*.4)*.5,p.y+1.7,p.z+dist);tL.set(p.x,p.y+1.5,p.z)}
+  if(focus&&S.autoCam){const p=focus.c.root.position;const port=camera.aspect<1;const zin=Math.min(1,focus.t/.8);const dist=lerp(5.5,3.3,zin);tV.set(p.x+.9+Math.sin(t*.4)*.5,p.y+1.7,p.z+dist);tL.set(p.x,p.y+1.5,p.z)}
   else if(manual){tV.set(Math.sin(camAng)*camR,camH,Math.cos(camAng)*camR-4);tL.set(0,1.8,-4)}
-  else{shotT+=dt;if(S.autoCam&&shotT>14){shotT=0;shotIdx=(shotIdx+1)%SHOTS.length}const s=SHOTS[S.autoCam?shotIdx:0];
+  else{const list=stageBusy?SHOTS:HALL;if(list!==curList){curList=list;shotIdx=0;shotT=0}shotT+=dt;if(S.autoCam&&shotT>(stageBusy?9:12)){shotT=0;shotIdx=(shotIdx+1)%list.length}const s=list[S.autoCam?shotIdx%list.length:0];
     tV.set(s.p[0]+Math.sin(t*.17)*1.6,s.p[1]+Math.sin(t*.23)*.4,s.p[2]);tL.set(...s.l)}
-  const k=Math.min(1,dt*(focus?2:1));camera.position.lerp(tV,k);camLook.lerp(tL,k);camera.lookAt(camLook)}
+  const k=Math.min(1,dt*(focus?3:1));camera.position.lerp(tV,k);camLook.lerp(tL,k);camera.lookAt(camLook)}
 
 // ================= animation =================
 const angLerp=(a,b,k)=>{const d=((b-a+PI)%TAU+TAU)%TAU-PI;return a+d*k};
@@ -860,7 +891,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   updateCamera(dt,t);
   slow-=dt;if(slow<0){slow=2;const lim=S.idleMin*60000,n=performance.now();
     for(const c of[...chars.values()])if(!c.leaving&&c.mode==='seated'&&n-c.lastActive>(c.seat&&c.seat.vip?lim*2:lim))leave(c);
-    let a=0,b=0;for(const c of chars.values()){if(c.leaving)continue;if(c.mode==='dance')a++;else b++}$('cStage').textContent=`🎤 ${a}`;$('cHall').textContent=`🍽️ ${b}`}
+    let a=0,b=0;for(const c of chars.values()){if(c.leaving)continue;if(c.mode==='dance')a++;else b++}stageBusy=a>0;$('cStage').textContent=`🎤 ${a}`;$('cHall').textContent=`🍽️ ${b}`}
   renderer.render(scene,camera)}
 
 // ================= demo / test =================
@@ -880,6 +911,7 @@ function testEvent(k){
   if(k==='yildiz')onGift(id,nick,S.cStar);
   if(k==='gift')onGift(id,nick,Math.max(1,+$('tsCoins').value||1));
   if(k==='like')onLike(null,null,1000);
+  if(k==='likeStage')onLike(id,nick,S.cLikes);
   if(k==='wild'){wildUntil=tNow+12;toast('🔥🔥🔥');confettiBurst(200)}
   if(k==='clear')for(const c of[...chars.values()])leave(c)}
 $('testFab').onclick=()=>$('testSheet').classList.toggle('on');$('tsClose').onclick=()=>$('testSheet').classList.remove('on');
@@ -921,13 +953,20 @@ $('wsStop').onclick=()=>{wsWanted=false;clearTimeout(wsRetry);if(ws)ws.close()};
 panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>testEvent(b.dataset.t));
 function bind(id,key,fn){const el=$(id),cb=el.type==='checkbox';if(cb)el.checked=!!S[key];else el.value=S[key];
   el.addEventListener(cb?'change':'input',()=>{S[key]=cb?el.checked:(el.type==='number'?Math.max(1,+el.value||1):el.value);saveS();fn&&fn()})}
-bind('cMoney','cMoney');bind('maxChars','maxChars');bind('cBottle','cBottle');bind('cStar','cStar');bind('idleMin','idleMin');
+bind('cMoney','cMoney');bind('maxChars','maxChars');bind('cBottle','cBottle');bind('cStar','cStar');bind('info1','info',()=>{if(!S.info)$('infoTx').classList.remove('on')});bind('cLikes','cLikes');bind('idleMin','idleMin');
 bind('rules','rules',()=>RULES=parseRules());
 bind('outline','outline',()=>{for(const c of chars.values())c.outs.forEach(o=>o.visible=S.outline)});bind('autoCam','autoCam',()=>{if(!S.autoCam){focus=null;focusQ.length=0}});
 
 setTimeout(()=>$('hint').style.opacity=0,7000);
 
 updateRank();updateLikes();requestAnimationFrame(loop);
+const INFO=['🥂 Gecenin mekânına <b>hoş geldin</b>',
+ '💬 Sohbete katılan herkes içeri girer ve <b>bir masaya oturur</b>',
+ '👗 Sohbete <b>kadın</b> ya da <b>erkek</b> yazanın karakteri değişir',
+ '🪑 Uzun süre sessiz kalan misafir <b>mekândan ayrılır</b>'];
+let infoI=0;function infoTick(){const el=$('infoTx');if(!S.info){el.classList.remove('on');return}
+  el.classList.remove('on');setTimeout(()=>{el.innerHTML=INFO[infoI++%INFO.length];el.classList.add('on')},650)}
+infoTick();setInterval(infoTick,7000);
 mdlStatus();loadModels();connect();
 $('mdlFiles').addEventListener('change',e=>{const fs=[...e.target.files].sort((a,b)=>/^karakter/i.test(a.name)?-1:1);loadModels(fs)});
 })();

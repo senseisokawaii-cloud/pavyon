@@ -104,7 +104,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 <button id="testFab">🧪 Deneme</button>
 <div id="testSheet" class="glass">
-  <div class="th"><span>🧪 Deneme</span><span id="tsClose">✕</span></div>
+  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v4g</small></span><span id="tsClose">✕</span></div>
   <input id="tsName" placeholder="İsim (boş bırakırsan rastgele)">
   <input id="tsMsg" placeholder="Yorum (boş bırakırsan rastgele)">
   <div class="tg">
@@ -118,7 +118,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4e</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4g</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -876,7 +876,7 @@ function onGift(id,nick,coins,giftName){coins=Math.max(1,coins|0);const c=touch(
   if(!ev){ev=new Set(['dans']);if(coins>=S.cMoney)ev.add('para');if(coins>=S.cBottle)ev.add('sise');if(coins>=S.cStar)ev.add('yildiz');if(coins>=S.cFruit)ev.add('meyve');if(coins>=S.cDancer)ev.add('dansoz');if(coins>=S.cHype)ev.add('costur')}
   {const add=45;if(c.mode==='dance')c.danceUntil=Math.min(Math.max(c.danceUntil,tNow)+add,tNow+180);else c.pendDance=Math.min((c.pendDance||0)+add,180)}
   const star=ev.has('yildiz');
-  if(ev.has('para')){c.throwLeft+=Math.min(400,25+coins*3);banner('💸','PARA SAÇIYOR',c.nick)}
+  if(ev.has('para')){c.throwLeft=Math.max(c.throwLeft,coins>=30?430:186);banner('💸','PARA SAÇIYOR',c.nick)}
   if(ev.has('sise')){assignVIP(c);c.bottles++;banner('💥','ŞİŞE PATLATIYOR',c.nick)}
   if(star){c.star=true;starChar=c;rainLeft=Math.min(1200,rainLeft+300+coins*2);confettiBurst(140);banner('⭐','GECENİN YILDIZI',c.nick)}
   if(ev.has('meyve'))callGarson(c);
@@ -979,7 +979,7 @@ function animate(c,dt,t){
       if(bt.t>5.8){c.arms[1].hand.remove(c.bottle);c.bottle=null;c.bottles--}}
     else if(c.throwLeft>0){if(!c.gun){c.gun=makeGun();c.gun.rotation.x=PI/2;c.gun.position.y=-.05;c.arms[1].hand.add(c.gun)}
       const sw=Math.sin(t*2.2);sh[1]=[-1.45,0,.25+sw*.35];el[1]=-.15;face+=sw*.35;
-      c.throwT-=dt;while(c.throwT<0&&c.throwLeft>0){c.throwT+=.025;c.throwLeft--;c.arms[1].hand.getWorldPosition(hv);const ang=r.rotation.y+sw*.35;
+      c.throwT-=dt;while(c.throwT<0&&c.throwLeft>0){c.throwT+=.035;c.throwLeft--;c.arms[1].hand.getWorldPosition(hv);const ang=r.rotation.y+sw*.35;
         const fw=new V3(Math.sin(ang),0,Math.cos(ang));note(hv.x+fw.x*.3,hv.y,hv.z+fw.z*.3,fw.x*rnd(4,7)+rnd(-.8,.8),rnd(1.5,3.5),fw.z*rnd(4,7)+rnd(-.8,.8))}}
     else if(c.gun){c.arms[1].hand.remove(c.gun);c.gun=null}}
   if(c.tray){sh[1]=[-1.25,0,.12];el[1]=-.55}
@@ -991,7 +991,7 @@ function animate(c,dt,t){
   // knee bend lowers body slightly
   const kneeDrop=(1-c.sitT)*(Math.max(c.legs[0].knee.rotation.x,c.legs[1].knee.rotation.x)>.2&&dancing?beat*.06:0);
   p.y=c.gy-(.86*CK-.47)*c.sitT+(bY-kneeDrop)*CK;
-  {const tk=(c.tier&&!c.likeDance)?[1,1.3,1.5,1.7][c.tier]:1;c.bigK=lerp(c.bigK||1,tk,Math.min(1,dt*3));c.body.scale.setScalar(CK*c.bigK);
+  {const tk=1;c.bigK=lerp(c.bigK||1,tk,Math.min(1,dt*3));c.body.scale.setScalar(CK*c.bigK);
    const ly=(c.labelY||2.55)*(c.bigK>1.01?c.bigK*.95:1);if(c.label)c.label.position.y=ly;if(c.bubble)c.bubble.position.y=ly+1.25}if(c.skirt)c.skirt.rotation.x=(c.legs[0].hip.rotation.x+c.legs[1].hip.rotation.x)*.45;
   c.shadow.position.y=c.gy-p.y+.015;const ss=c.sitT>.5?0:1.15*CK;c.shadow.scale.set(ss,ss,1);
   c.blinkT-=dt;if(c.blinkT<0)c.blinkT=rnd(2,5.5);c.eyes.scale.y=c.blinkT<.13?.1:1;

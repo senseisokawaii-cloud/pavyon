@@ -61,6 +61,14 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
   transition:opacity .6s,transform .6s;opacity:0;transform:translateY(8px)}
 #info span.on{opacity:1;transform:none}
 #info b{color:#ffe7a0}
+#bottomBar{position:absolute;left:50%;top:74.5%;transform:translateX(-50%);z-index:2;pointer-events:none;text-align:center;width:90%}
+#bottomBar div{display:block;width:max-content;margin:calc(var(--u)*.4) auto 0;padding:calc(var(--u)*.35) calc(var(--u)*1.3);border-radius:999px;font-size:calc(var(--u)*1.6);font-weight:600;
+  background:rgba(10,3,12,.72);border:1px solid rgba(242,201,106,.45);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;transition:opacity .5s}
+#bottomBar div:empty{display:none}#ownerTx b,#arriveTx b{color:#ffe7a0}
+#arriveTx{position:absolute;right:calc(var(--u)*2.5);top:calc(var(--u)*39);z-index:2;pointer-events:none;max-width:calc(var(--u)*52);
+  padding:calc(var(--u)*.6) calc(var(--u)*1.8);border-radius:999px;font-size:calc(var(--u)*2.4);font-weight:600;background:rgba(10,3,12,.7);border:1px solid rgba(242,201,106,.4);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .5s}
+#arriveTx.on{opacity:1}#arriveTx:empty{display:none}
 #hint{position:absolute;right:10px;bottom:10px;opacity:.55;font-size:12px;transition:opacity 1s;pointer-events:none;z-index:2}
 #panel{position:fixed;right:12px;top:12px;width:330px;color:#eee;border-radius:14px;padding:14px;display:none;font-size:13px;max-height:92vh;overflow:auto;z-index:10;--u:4px}
 #panel h3{margin:0 0 8px;font-family:Cinzel,serif;color:var(--g2);font-size:17px}
@@ -91,34 +99,36 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 <div id="app">
 <div id="vig"></div>
 <div id="top">
-  <div id="patron" class="glass" style="display:none"><div class="ic">👑</div><div class="tx"><div class="lb">GECENİN PATRONU</div><div class="nm" id="pName">—</div><div class="cn" id="pCoins"></div></div></div>
+  <div id="patron" class="glass"><div class="ic">👑</div><div class="tx"><div class="lb">GECENİN PATRONU</div><div class="nm" id="pName">—</div><div class="cn" id="pCoins"></div></div></div>
   <div id="chips"><span id="cStage">🎤 0</span><span id="cHall">🍽️ 0</span></div>
 </div>
-<div id="rank" style="display:none"></div>
+<div id="rank"></div>
 <div id="likes" class="glass"><div id="live"><i></i>CANLI</div><div class="n">❤️ <span id="lN">0</span></div></div>
 <div id="banner" class="glass"><div class="ic" id="bIc">💸</div><div style="min-width:0"><div class="t1" id="bT1"></div><div class="t2" id="bT2"></div></div></div>
 <div id="toast"></div>
 <div id="feed"></div>
 <div id="info"><span id="infoTx"></span></div>
+<div id="bottomBar" style="display:none"><div id="ownerTx"></div></div>
+<div id="arriveTx"></div>
 <div id="hint">H: kontrol paneli · T: deneme tuşu</div>
 </div>
 <button id="testFab">🧪 Deneme</button>
 <div id="testSheet" class="glass">
-  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v5a</small></span><span id="tsClose">✕</span></div>
+  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v5f</small></span><span id="tsClose">✕</span></div>
   <input id="tsName" placeholder="İsim (boş bırakırsan rastgele)">
   <input id="tsMsg" placeholder="Yorum (boş bırakırsan rastgele)">
   <div class="tg">
     <button data-x="join">👋 Müşteri gelsin</button><button data-x="guests">👥 +10 müşteri</button>
     <button data-x="chat">💬 Yorum yap</button><button data-x="dans">🎤 Dans (1)</button>
     <button data-x="para">💸 Para saç</button><button data-x="sise">💥 Şişe patlat</button>
-    <button data-x="yildiz">⭐ Gecenin yıldızı</button><button data-x="meyve">🍇 Meyve tabağı</button><button data-x="dansoz">💃 Dansöz</button><button data-x="costur">🔥 Mekanı coştur</button><button data-x="like">❤️ +1000 beğeni</button><button data-x="likeStage">💗 Beğeniyle sahne</button><button data-x="follow">➕ Takip</button>
+    <button data-x="yildiz">⭐ Gecenin yıldızı</button><button data-x="meyve">🍇 Meyve tabağı</button><button data-x="dansoz">💃 Dansöz</button><button data-x="costur">🔥 Mekanı coştur</button><button data-x="like">❤️ +1000 beğeni</button><button data-x="likeStage">💗 Beğeniyle sahne</button>
     <button data-x="wild">🔥 Çılgın mod</button><button data-x="clear">🚪 Herkesi çıkar</button>
   </div>
   <div class="row2"><input id="tsCoins" type="number" min="1" value="50"><button data-x="gift">🎁 Bu kadar coin at</button></div>
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v5a</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v5f</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -678,7 +688,7 @@ function createChar(id,nick){
   s.occ=c;c.root.position.set(rnd(-.6,.6),ST,STAGE_Z0+.1);c.root.scale.setScalar(.01);
   scene.add(c.root);chars.set(id,c);refreshLabel(c);goSeat(c);if(!seenIds.has(id)){seenIds.add(id);requestFocus(c,1.5,true)}return c}
 function setLabel(c,kind){if(c.label&&c.labelKind===kind)return;disposeSprite(c.label);c.labelKind=kind;c.label=makeLabel(c.nick,kind);c.label.position.y=c.labelY||2.55;c.root.add(c.label)}
-function refreshLabel(c){c.crown.visible=false;setLabel(c,c.seat&&c.seat.vip?'vip':'')}
+function refreshLabel(c){c.crown.visible=c.id===patronId;setLabel(c,c.id===patronId?'patron':(c.seat&&c.seat.vip?'vip':''))}
 function goSeat(c){route(c,{seat:c.seat});c.onArrive=()=>{c.mode='seated';c.faceTo=c.seat.rot}}
 function freeSpot(star,likeOnly){if(star&&!STAR_SPOT.occ)return STAR_SPOT;const fr=DSPOTS.filter(s=>!s.occ);if(!fr.length)return null;const pref=fr.filter(s=>s.run);return pick(pref.length?pref:fr)}
 function goStage(c,star,likeOnly){
@@ -691,7 +701,7 @@ function goStage(c,star,likeOnly){
 function stageVictim(nc){let best=null,bs=1e9;for(const o of chars.values()){if(o===nc||o.npc||o.star||o.mode!=='dance'||!o.spot||o.spot.star)continue;
     if(tNow-(o.stageSince||0)<60)continue;if(!nc.likeDance&&false)continue;
     if(nc.likeDance&&!o.likeDance)continue;const sc=(o.likeDance?0:1e6)+(o.stageSince||0);if(sc<bs){bs=sc;best=o}}return best}
-function onStage(c){if(c.star)starFx(c);c.stageSince=tNow;c.mode='dance';c.faceTo=0;c.speed=0;stageBusy=true;c.danceUntil=Math.max(c.danceUntil,tNow)+(c.pendDance||45);c.pendDance=0;if(!c.likeDance){if(c.fdur>0)requestFocus(c,c.fdur);
+function onStage(c){if(c.star)starFx(c);c.stageSince=tNow;if(!c.npc)showEvent(c.likeDance?`🎤 <b>${esc(c.nick)}</b> sahneye çıktı`:`🔥 <b>${esc(c.nick)}</b> sahneyi coşturuyor`);c.mode='dance';c.faceTo=0;c.speed=0;stageBusy=true;c.danceUntil=Math.max(c.danceUntil,tNow)+(c.pendDance||45);c.pendDance=0;if(!c.likeDance){if(c.fdur>0)requestFocus(c,c.fdur);
   for(const o of chars.values())if(o.mode==='seated'&&Math.random()<.55)o.clapUntil=tNow+rnd(1.5,3)}}
 function endDance(c){if(c.spot){c.spot.occ=null;c.spot=null}if(c.pspot){c.pspot.occ=null;c.pspot=null}c.party=false;c.star=false;c.likeDance=false;c.tier=0;if(starChar===c)starChar=null;
   if(c.npc){c.mode='walk';c.leaving=true;c.path=[];if(zoneOf(c.root.position)==='runway')c.path.push({x:0,z:-14.4});c.path.push({x:0,z:-17.2});c.onArrive=()=>removeChar(c);return}
@@ -834,6 +844,11 @@ function updateRain(dt){if(rainLeft<=0)return;rainT-=dt;while(rainT<0&&rainLeft>
 
 // ================= HUD =================
 function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m])}
+const evQ=[];let evBusy=false;
+function showEvent(html){if(evQ.length>=5)evQ.shift();evQ.push(html);if(!evBusy)nextEvent()}
+function nextEvent(){const el=$('arriveTx');const h=evQ.shift();if(!h){evBusy=false;return}evBusy=true;el.innerHTML=h;el.classList.add('on');
+  setTimeout(()=>{el.classList.remove('on');setTimeout(nextEvent,450)},evQ.length?2200:3500)}
+function showArrival(n){showEvent(`✨ <b>${esc(n)}</b> mekana geldi`)}
 const fmt=n=>Math.round(n).toLocaleString('tr-TR');
 const bannerQ=[];let bannerBusy=false;
 function banner(ic,t1,t2){return;if(bannerQ.length<6)bannerQ.push([ic,t1,t2]);if(!bannerBusy)nextBanner()}
@@ -845,7 +860,7 @@ let toastTimer;function toast(t){const el=$('toast');el.textContent=t;el.classLi
 function updateRank(){let best=null,bv=0;for(const[k,v]of totals)if(v.coins>bv){bv=v.coins;best=k}
   const prev=patronId;patronId=best;
   if(prev!==best){const a=chars.get(prev),b=chars.get(best);a&&refreshLabel(a);b&&refreshLabel(b);if(best&&totals.size>0)banner('👑','YENİ PATRON',totals.get(best).nick)}
-  const p=totals.get(best);$('pName').textContent=p?p.nick:'—';$('pCoins').textContent='';
+  const p=totals.get(best);$('pName').textContent=p?p.nick:'—';$('ownerTx').innerHTML=p?`👑 Mekanın sahibi: <b>${esc(p.nick)}</b>`:'';$('pCoins').textContent='';
   const top=[...totals.values()].sort((a,b)=>b.coins-a.coins).slice(1,4);const bg=['linear-gradient(#fff3c4,#d9a441)','linear-gradient(#f2f2f2,#9a9aa8)','linear-gradient(#ffd0a8,#b0602a)'];
   $('rank').innerHTML=top.map((v,i)=>`<div class="rk glass"><b style="background:${bg[i+1]||bg[2]}">${i+2}</b><span>${esc(v.nick)}</span></div>`).join('')}
 const MILES=[1000,5000,10000,20000,50000,100000,250000,500000,1000000];
@@ -856,7 +871,7 @@ function updateLikes(){$('lN').textContent=fmt(totalLikes);const nx=MILES.find(m
 // ================= events =================
 function touch(id,nick){let c=chars.get(id);
   if(c&&c.leaving){const s=getSeat();if(s){c.leaving=false;c.seat=s;s.occ=c;goSeat(c);refreshLabel(c)}else return null}
-  if(!c){c=createChar(id,nick)}
+  if(!c){c=createChar(id,nick);if(c)showArrival(nick)}
   if(!c)return null;if(nick&&c.nick!==nick){c.nick=nick;c.labelKind='_';refreshLabel(c)}c.lastActive=performance.now();return c}
 const genderPref=new Map();
 function swapGender(c,F){if(!c||c.glb)return;if(F===undefined)F=!c.F;genderPref.set(c.id,F);if(c.F===F)return;
@@ -906,7 +921,7 @@ const likeCnt=new Map(),followed=new Set();
 const inside=id=>{const c=chars.get(id);return c&&!c.leaving&&!c.npc?c:null};
 function likeStage(id,nick){const c=inside(id);if(c&&!c.spot&&c.mode!=='dance'){c.likeDance=true;c.fdur=0;c.pendDance=1e9;goStage(c,false,true);return true}return false}
 const pendFollow=new Set();
-function onFollow(id,nick){if(!id||followed.has(id))return;followed.add(id);if(!likeStage(id,nick))pendFollow.add(id)}
+function onFollow(id,nick){return;if(!id||followed.has(id))return;followed.add(id);if(!likeStage(id,nick))pendFollow.add(id)}
 function onLike(id,nick,count,total){const prev=totalLikes;totalLikes=total!=null?Math.max(totalLikes,total):totalLikes+count;
   if(id){const n=(likeCnt.get(id)||0)+(+count||1);
     if(n>=S.cLikes){const c=inside(id);if(c&&!c.spot&&c.mode!=='dance'){likeCnt.set(id,0);c.likeDance=true;c.fdur=0;c.pendDance=1e9;goStage(c,false,true)}else likeCnt.set(id,n)}

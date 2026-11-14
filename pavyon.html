@@ -56,7 +56,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 .fd b{color:#ffe7a0}
 @keyframes fin{from{transform:translateX(-30px);opacity:0}}
  #info{position:absolute;left:50%;top:70%;transform:translateX(-50%);z-index:2;pointer-events:none;max-width:86%;text-align:center}
-#info span{display:inline-block;padding:calc(var(--u)*1.2) calc(var(--u)*3.2);border-radius:999px;font-size:calc(var(--u)*3.4);font-weight:600;line-height:1.3;
+#info span{display:inline-block;padding:calc(var(--u)*.45) calc(var(--u)*1.3);border-radius:999px;font-size:calc(var(--u)*1.5);font-weight:600;line-height:1.3;
   background:linear-gradient(160deg,rgba(40,12,34,.88),rgba(10,3,12,.85));border:calc(var(--u)*.25) solid rgba(242,201,106,.6);box-shadow:0 0 calc(var(--u)*2.5) rgba(0,0,0,.7);
   transition:opacity .6s,transform .6s;opacity:0;transform:translateY(8px)}
 #info span.on{opacity:1;transform:none}
@@ -104,7 +104,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 <button id="testFab">🧪 Deneme</button>
 <div id="testSheet" class="glass">
-  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v4j</small></span><span id="tsClose">✕</span></div>
+  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v4k</small></span><span id="tsClose">✕</span></div>
   <input id="tsName" placeholder="İsim (boş bırakırsan rastgele)">
   <input id="tsMsg" placeholder="Yorum (boş bırakırsan rastgele)">
   <div class="tg">
@@ -118,7 +118,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4j</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4k</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -1105,7 +1105,7 @@ bind('outline','outline',()=>{for(const c of chars.values())c.outs.forEach(o=>o.
 setTimeout(()=>$('hint').style.opacity=0,7000);
 
 updateRank();updateLikes();requestAnimationFrame(loop);
-const INFO=['👗 Sohbete <b>kadın</b> ya da <b>erkek</b> yazanın karakteri değişir'];
+const INFO=['👗 <b>kadın</b> veya <b>erkek</b> karakteri değiştirir'];
 let infoI=0;function infoTick(){const el=$('infoTx');if(!S.info){el.classList.remove('on');return}
   el.classList.remove('on');setTimeout(()=>{el.innerHTML=INFO[infoI++%INFO.length];el.classList.add('on')},650)}
 infoTick();

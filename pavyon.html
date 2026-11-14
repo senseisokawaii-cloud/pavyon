@@ -91,10 +91,10 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 <div id="app">
 <div id="vig"></div>
 <div id="top">
-  <div id="patron" class="glass"><div class="ic">👑</div><div class="tx"><div class="lb">GECENİN PATRONU</div><div class="nm" id="pName">—</div><div class="cn" id="pCoins"></div></div></div>
+  <div id="patron" class="glass" style="display:none"><div class="ic">👑</div><div class="tx"><div class="lb">GECENİN PATRONU</div><div class="nm" id="pName">—</div><div class="cn" id="pCoins"></div></div></div>
   <div id="chips"><span id="cStage">🎤 0</span><span id="cHall">🍽️ 0</span></div>
 </div>
-<div id="rank"></div>
+<div id="rank" style="display:none"></div>
 <div id="likes" class="glass"><div id="live"><i></i>CANLI</div><div class="n">❤️ <span id="lN">0</span></div></div>
 <div id="banner" class="glass"><div class="ic" id="bIc">💸</div><div style="min-width:0"><div class="t1" id="bT1"></div><div class="t2" id="bT2"></div></div></div>
 <div id="toast"></div>
@@ -104,7 +104,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 <button id="testFab">🧪 Deneme</button>
 <div id="testSheet" class="glass">
-  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v4k</small></span><span id="tsClose">✕</span></div>
+  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v5a</small></span><span id="tsClose">✕</span></div>
   <input id="tsName" placeholder="İsim (boş bırakırsan rastgele)">
   <input id="tsMsg" placeholder="Yorum (boş bırakırsan rastgele)">
   <div class="tg">
@@ -118,7 +118,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4k</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v5a</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -165,9 +165,9 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 try{await Promise.race([Promise.all([document.fonts.load('600 40px Poppins'),document.fonts.load('900 40px Cinzel')]),new Promise(r=>setTimeout(r,1800))])}catch(e){}
 
 // ================= settings =================
-const S={idleMin:10,cMoney:5,cBottle:30,cStar:100,cFruit:10,cDancer:50,cHype:150,sign:'PAVYON',autoCam:true,outline:true,rules:'',maxChars:58,cLikes:200,info:true};
+const S={idleMin:10,cMoney:5,cBottle:30,cStar:100,cFruit:10,cDancer:50,cHype:150,sign:'PAVYON',autoCam:true,outline:true,rules:'',maxChars:46,cLikes:200,info:true};
 try{Object.assign(S,JSON.parse(localStorage.getItem('pavyon3d_v3')||'{}'))}catch(e){}
-if(S.maxChars>58)S.maxChars=58;
+if(S.maxChars>46)S.maxChars=46;
 if(S.cLikes===150)S.cLikes=200;
 const saveS=()=>{try{localStorage.setItem('pavyon3d_v3',JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
@@ -209,9 +209,9 @@ function inst(geo,m,list,colors){const im=new THREE.InstancedMesh(geo,m,list.len
 // ================= layout constants =================
 const ST=1.0;                     // stage / runway height
 const STAGE_Z0=-17.4,STAGE_Z1=-14; // stage depth
-const RUN_W=1.6,RUN_END=6.5,END_Z=7.6,END_R=2.3;
+const RUN_W=2.4,RUN_END=6.5,END_Z=7.6,END_R=3;
 const STEPZ=[-4.5];
-const AISLES=[4.15,6.85];
+const AISLES=[4.95];
 const CORR=[-11.6,-4.5,3.8,13.4];
 function groundY(x,z){const ax=Math.abs(x);
   if(z<STAGE_Z1&&z>STAGE_Z0-.1&&ax<8)return ST;
@@ -219,7 +219,7 @@ function groundY(x,z){const ax=Math.abs(x);
   if(ax<RUN_W&&z>=STAGE_Z1-.01&&z<=RUN_END)return ST;
   if(x*x+(z-END_Z)*(z-END_Z)<END_R*END_R)return ST;
   if(Math.abs(ax-6.3)<.8&&z>=STAGE_Z1&&z<-12)return ST*(-12-z)/2;
-  for(const sz of STEPZ)if(Math.abs(z-sz)<.6&&ax>=RUN_W&&ax<2.6)return ST*(2.6-ax);
+  for(const sz of STEPZ)if(Math.abs(z-sz)<.6&&ax>=RUN_W&&ax<RUN_W+1)return ST*(RUN_W+1-ax);
   return 0}
 
 // ================= lights =================
@@ -341,7 +341,7 @@ const UP=new V3(0,-1,0);
 // uzun masalar: podyumun iki yanında, herkes podyuma dönük oturur
 const tables=[],seats=[];
 const TSEG=[{z0:-11.3,z1:-4.9,n:6},{z0:-4.1,z1:3.1,n:7}];
-for(const s of[-1,1])for(const [ri,tx,sx] of [[0,2.65,3.55],[1,5.15,6.05]])for(const sg of TSEG){
+for(const s of[-1,1])for(const [ri,tx,sx] of [[0,3.45,4.35]])for(const sg of TSEG){
   tables.push({x:s*tx,z:(sg.z0+sg.z1)/2,len:sg.z1-sg.z0});
   const step=(sg.z1-sg.z0-.5)/(sg.n-1);
   for(let i=0;i<sg.n;i++){const z=sg.z0+.25+i*step;seats.push({x:s*sx,z,rot:Math.atan2(-s,0),occ:null,vip:false,side:s,score:ri*3+(z+11)*.08,tx:s*tx})}}
@@ -529,7 +529,8 @@ function buildChar(forceF,opt){opt=opt||{};
     const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.04),std(0xff1040,{metalness:.3,roughness:.1,emissive:0x550010}));gem.position.set(0,0,.19);crown.add(gem)}
   crown.position.set(0,.69,-.02);crown.rotation.x=-.12;crown.visible=false;head.add(crown);
   const shadow=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}));shadow.rotation.x=-PI/2;root.add(shadow);
-  return{root,body,legs,arms,head,crown,shadow,meshes,outs,F,eyes,mouth,mouthOpen,skirt:null,mat:cm,bri:.38};
+  const pool=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:glowTex,color:0xffc0e8,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));pool.rotation.x=-PI/2;pool.visible=false;root.add(pool);
+  return{root,body,legs,arms,head,crown,shadow,meshes,outs,F,eyes,mouth,mouthOpen,skirt:null,mat:cm,bri:.38,pool};
 }
 
 // labels & bubbles
@@ -545,19 +546,19 @@ function makeLabel(text,kind){
   g.fill();g.lineWidth=kind?6:4;g.strokeStyle=kind==='patron'?'#ffd84a':kind==='vip'?'#e2a5ff':'#f2c96a';g.stroke();
   g.fillStyle=kind==='patron'?'#fff1b8':'#ffffff';g.textAlign='center';g.textBaseline='middle';g.fillText(t,320,65);
   const tex=new THREE.CanvasTexture(c);tex.anisotropy=4;
-  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false}));sp.renderOrder=9;sp.scale.set(3.6,.72,1);return sp}
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false}));sp.renderOrder=9;sp.scale.set(2.4,.48,1);return sp}
 function makeBubble(text){
   const c=document.createElement('canvas');c.width=768;c.height=300;const g=c.getContext('2d');
-  g.font='800 56px Poppins,system-ui,sans-serif';const words=String(text).slice(0,80).split(/\s+/);const lines=[];let cur='';
+  g.font='800 66px Poppins,system-ui,sans-serif';const words=String(text).slice(0,60).split(/\s+/);const lines=[];let cur='';
   for(const w of words){const tst=cur?cur+' '+w:w;if(g.measureText(tst).width>680&&cur){lines.push(cur);cur=w}else cur=tst}if(cur)lines.push(cur);
   if(lines.length>2){lines.length=2;lines[1]=lines[1].replace(/.?$/,'…')}
-  const w=Math.min(750,Math.max(...lines.map(l=>g.measureText(l).width))+64),h=lines.length*66+40,x=(768-w)/2,y=262-h;
+  const w=Math.min(756,Math.max(...lines.map(l=>g.measureText(l).width))+50),h=lines.length*76+30,x=(768-w)/2,y=262-h;
   g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=18;g.shadowOffsetY=5;
   roundRect(g,x,y,w,h,30);g.fillStyle='#ffffff';g.fill();g.beginPath();g.moveTo(354,y+h-2);g.lineTo(384,y+h+30);g.lineTo(414,y+h-2);g.fill();
   g.shadowColor='transparent';g.lineWidth=5;g.strokeStyle='#f2c96a';roundRect(g,x,y,w,h,30);g.stroke();
-  g.fillStyle='#14040f';g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,384,y+20+33+i*66));
+  g.fillStyle='#14040f';g.textAlign='center';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,384,y+15+38+i*76));
   const tex=new THREE.CanvasTexture(c);tex.anisotropy=4;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false}));
-  sp.renderOrder=10;sp.scale.set(5.2,2.03,1);return sp}
+  sp.renderOrder=10;sp.scale.set(3.3,1.29,1);return sp}
 function disposeSprite(s){if(!s)return;s.parent&&s.parent.remove(s);s.material.map.dispose();s.material.dispose()}
 
 // ================= Mixamo model system =================
@@ -633,8 +634,8 @@ function animGlb(c,dt,t,dancing){const r=c.root,p=r.position;let face=c.faceTo,k
 // ================= character logic =================
 const chars=new Map(),totals=new Map();let patronId=null,tNow=0,starChar=null;
 const DSPOTS=[];
-[[0,-12],[0,-9.6],[0,-7.2],[0,-4.8],[0,-2.4],[0,0],[0,2.4],[-1.6,-15.6],[1.6,-15.6],[0,-16.2],[-3.2,-15.6],[3.2,-15.6]].forEach(p=>DSPOTS.push({x:p[0],z:p[1],occ:null,run:Math.abs(p[1])<14}));
-const STAR_SPOT={x:0,z:4.6,occ:null,run:true,star:true};
+{const rows=[4.4,2.9,1.4,-.1,-1.6,-3.1,-4.6,-6.1];rows.forEach((z,ri)=>{const xs=ri%2?[-.95,.95]:[-1.75,0,1.75];xs.forEach(x=>DSPOTS.push({x,z,occ:null,run:true}))})}
+const STAR_SPOT={x:0,z:6.9,occ:null,run:true,star:true};
 
 function zoneOf(p){const ax=Math.abs(p.x);
   if((ax<8&&p.z<STAGE_Z1)||(ax>=8&&ax<13.2&&p.z<-12.5&&p.z>-17.3))return'stage';
@@ -646,7 +647,7 @@ function floorRoute(P,T,tA){const pts=[];let px=P.x;const pa=nearestAisle(P.x);i
 function vipOut(p,pts){if(Math.abs(p.x)>8.2&&p.z<-15.4)pts.push({x:Math.sign(p.x)*8.3,z:-15.9})}
 function toFloor(p,side){const z=zoneOf(p),pts=[];
   if(z==='stage'){vipOut(p,pts);if(p.z<STAGE_Z0+.6&&Math.abs(p.x)<1.6)pts.push({x:p.x,z:-16.4});pts.push({x:side*6.3,z:-14.6},{x:side*6.3,z:-11.6});return[pts,{x:side*6.3,z:-11.6}]}
-  if(z==='runway'){const cz=nearest(STEPZ,p.z);pts.push({x:side*1,z:cz},{x:side*2.5,z:cz});return[pts,{x:side*2.5,z:cz}]}
+  if(z==='runway'){const cz=nearest(STEPZ,p.z);pts.push({x:side*(RUN_W-.6),z:cz},{x:side*(RUN_W+1.05),z:cz});return[pts,{x:side*(RUN_W+1.05),z:cz}]}
   return[pts,{x:p.x,z:p.z}]}
 function route(c,dest){const p=c.root.position,z=zoneOf(p);let pts=[];
   if(dest.seat){const s=dest.seat;
@@ -656,7 +657,7 @@ function route(c,dest){const p=c.root.position,z=zoneOf(p);let pts=[];
       pts.push({x:s.side*8.3,z:-15.9},{x:s.x,z:s.z})}
     else{const[a,fp]=toFloor(p,s.side);pts=a.concat(floorRoute(fp,s,nearestAisle(s.x)))}}
   else if(dest.spot){const sp=dest.spot;
-    if(z==='floor'){const sd=Math.sign(p.x)||1,cz=nearest(STEPZ,p.z);pts=floorRoute(p,{x:sd*2.5,z:cz},sd*2.5);pts.push({x:sd*1,z:cz});if(!sp.run)pts.push({x:0,z:-14.4})}
+    if(z==='floor'){const sd=Math.sign(p.x)||1,cz=nearest(STEPZ,p.z);pts=floorRoute(p,{x:sd*(RUN_W+1.05),z:cz},sd*(RUN_W+1.05));pts.push({x:sd*(RUN_W-.6),z:cz});if(!sp.run)pts.push({x:0,z:-14.4})}
     else if(z==='stage'){vipOut(p,pts);if(p.z<STAGE_Z0+.6&&Math.abs(p.x)<1.6)pts.push({x:p.x,z:-16.4});if(sp.run)pts.push({x:0,z:-14.4})}
     else if(!sp.run)pts.push({x:0,z:-14.4});
     pts.push({x:sp.x,z:sp.z})}
@@ -677,7 +678,7 @@ function createChar(id,nick){
   s.occ=c;c.root.position.set(rnd(-.6,.6),ST,STAGE_Z0+.1);c.root.scale.setScalar(.01);
   scene.add(c.root);chars.set(id,c);refreshLabel(c);goSeat(c);if(!seenIds.has(id)){seenIds.add(id);requestFocus(c,1.5,true)}return c}
 function setLabel(c,kind){if(c.label&&c.labelKind===kind)return;disposeSprite(c.label);c.labelKind=kind;c.label=makeLabel(c.nick,kind);c.label.position.y=c.labelY||2.55;c.root.add(c.label)}
-function refreshLabel(c){c.crown.visible=c.id===patronId;setLabel(c,c.id===patronId?'patron':(c.seat&&c.seat.vip?'vip':''))}
+function refreshLabel(c){c.crown.visible=false;setLabel(c,c.seat&&c.seat.vip?'vip':'')}
 function goSeat(c){route(c,{seat:c.seat});c.onArrive=()=>{c.mode='seated';c.faceTo=c.seat.rot}}
 function freeSpot(star,likeOnly){if(star&&!STAR_SPOT.occ)return STAR_SPOT;const fr=DSPOTS.filter(s=>!s.occ);if(!fr.length)return null;const pref=fr.filter(s=>s.run);return pick(pref.length?pref:fr)}
 function goStage(c,star,likeOnly){
@@ -736,7 +737,7 @@ function callGarson(target){const s=target.seat;if(!s||npcCount('garson')>=4)ret
     g.leaving=true;g.speed=0;route(g,{spot:{x:0,z:-17.2,run:false}});g.onArrive=()=>removeChar(g)}};
 }
 function updatePlates(){for(let i=plates.length-1;i>=0;i--)if(tNow>plates[i].until){scene.remove(plates[i].g);plates.splice(i,1)}}
-function say(c,text){if(!text)return;disposeSprite(c.bubble);c.bubble=makeBubble(text);c.bubble.position.y=(c.labelY||2.55)+1.25;c.root.add(c.bubble);c.bubbleT=8}
+function say(c,text){if(!text)return;disposeSprite(c.bubble);c.bubble=makeBubble(text);c.bubble.position.y=(c.labelY||2.55)+.85;c.root.add(c.bubble);c.bubbleT=8}
 function assignVIP(c){if(c.seat&&c.seat.vip){c.seat.since=tNow;return}
   let vs=vipSeats.find(s=>!s.occ);
   if(!vs){vs=vipSeats.reduce((a,b)=>a.since<b.since?a:b);const old=vs.occ;vs.occ=null;old.seat=null;const ns=getSeat();
@@ -855,7 +856,7 @@ function updateLikes(){$('lN').textContent=fmt(totalLikes);const nx=MILES.find(m
 // ================= events =================
 function touch(id,nick){let c=chars.get(id);
   if(c&&c.leaving){const s=getSeat();if(s){c.leaving=false;c.seat=s;s.occ=c;goSeat(c);refreshLabel(c)}else return null}
-  if(!c){c=createChar(id,nick);if(c)feed(`✨ <b>${esc(nick)}</b> mekana geldi`)}
+  if(!c){c=createChar(id,nick)}
   if(!c)return null;if(nick&&c.nick!==nick){c.nick=nick;c.labelKind='_';refreshLabel(c)}c.lastActive=performance.now();return c}
 const genderPref=new Map();
 function swapGender(c,F){if(!c||c.glb)return;if(F===undefined)F=!c.F;genderPref.set(c.id,F);if(c.F===F)return;
@@ -894,8 +895,7 @@ function onGift(id,nick,coins,giftName){coins=Math.max(1,coins|0);const c=touch(
   c.tier=Math.max(c.tier||0,ev.has('yildiz')?3:(ev.has('sise')||ev.has('dansoz')||ev.has('costur'))?2:1);
   c.fdur=1.3;goStage(c,star);if(c.mode==='dance'&&c.fdur>0)requestFocus(c,c.fdur);updateRank();refreshLabel(c)}
 // herkes sahneye: coşturma ve beğeni hedeflerinde salondaki herkes podyuma çıkıp oynar
-const PARTY=[];for(let z=-13.4;z<=6;z+=.9)for(const x of[-1.05,0,1.05])PARTY.push({x,z,occ:null,run:true});
-for(const z of[-16.8,-15.8,-14.8])for(let x=-7;x<=7;x+=1)PARTY.push({x,z,occ:null,run:false});
+const PARTY=[];for(let z=-13.4;z<=6;z+=.8)for(const x of[-1.8,-.6,.6,1.8])PARTY.push({x:x+((Math.round(z/.8))%2?.3:0),z,occ:null,run:true});
 function massParty(dur){const end=tNow+dur;wildUntil=Math.max(wildUntil,end);
   const fr=PARTY.filter(s=>!s.occ);
   for(const c of[...chars.values()]){if(c.leaving||c.npc)continue;
@@ -917,8 +917,8 @@ let flashT=0;
 
 // ================= camera =================
 let focus=null;const focusQ=[];let shotIdx=0,shotT=0,manual=false,drag=null,camAng=0,camR=24,camH=9;
-const SHOTS=[{p:[0,9.5,17.5],l:[0,1,-4.5]},{p:[0,8.6,15.5],l:[0,1.2,-5]}];const seenIds=new Set();let lastLow=-99,stageBusy=false,curList=null;
-const HALL=[{p:[0,10.5,18.5],l:[0,.6,-4]},{p:[-12,7.5,-1],l:[2.5,.6,-5]},{p:[12,7.5,-1],l:[-2.5,.6,-5]}];
+const SHOTS=[{p:[0,8.2,15],l:[0,1.2,-1.5]},{p:[0,9.5,17],l:[0,1,-2.5]}];const seenIds=new Set();let lastLow=-99,stageBusy=false,curList=null;
+const HALL=[{p:[0,9.2,16],l:[0,.8,-4]},{p:[-9,6.8,2],l:[2,.7,-5]},{p:[9,6.8,2],l:[-2,.7,-5]}];
 function requestFocus(c,dur,low){if(!S.autoCam)return;const it={c,dur,t:0,low:!!low};
   if(low){if(focus||focusQ.length||tNow-lastLow<6)return;lastLow=tNow;focus=it;return}
   if(!focus||focus.low||focus.c===c){focus=it;return}
@@ -954,7 +954,7 @@ function animate(c,dt,t){
   c.sitT+=((c.mode==='seated'&&!wild?1:0)-c.sitT)*Math.min(1,dt*5);
   c.gy+=(groundY(p.x,p.z)-c.gy)*Math.min(1,dt*10);
   if(c.glb){animGlb(c,dt,t,dancing);return}
-  {const z=zoneOf(p);const tb=c.mode==='dance'?1.25:(z!=='floor'?(c.seat&&c.seat.vip&&c.mode==='seated'?.65:.95):(wild?.9:.82));
+  {const z=zoneOf(p);const tb=c.mode==='dance'?1.25:(z!=='floor'?(c.seat&&c.seat.vip&&c.mode==='seated'?.65:.95):(wild?.85:.62));
    c.bri+=(tb-c.bri)*Math.min(1,dt*2.5);c.mat.color.setScalar(c.bri)}
   const k=Math.min(1,dt*12),ph=t+c.seed,beat=Math.abs(Math.sin(t*W/2+c.seed*.3));
   let face=c.faceTo,bY=0,bX=0,bRz=0,bRy=0,hRx=0,hRy=0;
@@ -1002,7 +1002,8 @@ function animate(c,dt,t){
   const kneeDrop=(1-c.sitT)*(Math.max(c.legs[0].knee.rotation.x,c.legs[1].knee.rotation.x)>.2&&dancing?beat*.06:0);
   p.y=c.gy-(.86*CK-.47)*c.sitT+(bY-kneeDrop)*CK;
   {const tk=1;c.bigK=lerp(c.bigK||1,tk,Math.min(1,dt*3));c.body.scale.setScalar(CK*c.bigK);
-   const ly=(c.labelY||2.55)*(c.bigK>1.01?c.bigK*.95:1);if(c.label)c.label.position.y=ly;if(c.bubble)c.bubble.position.y=ly+1.25}if(c.skirt)c.skirt.rotation.x=(c.legs[0].hip.rotation.x+c.legs[1].hip.rotation.x)*.45;
+   const ly=(c.labelY||2.55)*(c.bigK>1.01?c.bigK*.95:1);if(c.label){c.label.position.y=ly;const on=c.mode==='dance';const lk=on?1:.8;c.label.scale.set(2.4*lk,.48*lk,1);c.label.material.opacity=on?1:.7}
+   if(c.pool){c.pool.visible=c.mode==='dance';if(c.pool.visible){c.pool.position.y=c.gy-p.y+.03;const pp=1.6+Math.sin(t*W/2)*.12;c.pool.scale.set(pp,pp,1)}}if(c.bubble)c.bubble.position.y=ly+.85}if(c.skirt)c.skirt.rotation.x=(c.legs[0].hip.rotation.x+c.legs[1].hip.rotation.x)*.45;
   c.shadow.position.y=c.gy-p.y+.015;const ss=c.sitT>.5?0:1.15*CK;c.shadow.scale.set(ss,ss,1);
   c.blinkT-=dt;if(c.blinkT<0)c.blinkT=rnd(2,5.5);c.eyes.scale.y=c.blinkT<.13?.1:1;
   if(c.mouthOpen){const talk=c.bubble&&c.bubbleT>3.6;c.mouthOpen.visible=talk||c.mouthOpen.scale.y>.05;c.mouthOpen.scale.y=lerp(c.mouthOpen.scale.y,talk?.35+Math.abs(Math.sin(t*14))*.8:.01,k);c.mouth.children[0].visible=!c.mouthOpen.visible}

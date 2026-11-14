@@ -114,7 +114,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 <button id="testFab">🧪 Deneme</button>
 <div id="testSheet" class="glass">
-  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v6</small></span><span id="tsClose">✕</span></div>
+  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v6a</small></span><span id="tsClose">✕</span></div>
   <input id="tsName" placeholder="İsim (boş bırakırsan rastgele)">
   <input id="tsMsg" placeholder="Yorum (boş bırakırsan rastgele)">
   <div class="tg">
@@ -128,7 +128,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v6</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v6a</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -647,9 +647,9 @@ function animGlb(c,dt,t,dancing){const r=c.root,p=r.position;let face=c.faceTo,k
 const chars=new Map(),totals=new Map();let patronId=null,tNow=0,starChar=null;
 // ön taraf: coşturanlar (jeton atanlar)
 const DSPOTS=[];
-[[3.6,[-2.3,0,2.3]],[4.9,[-1.15,1.15]],[6.3,[-2.2,-.75,.75,2.2]]].forEach(([z,xs])=>xs.forEach(x=>DSPOTS.push({x,z,occ:null,run:true,hype:true})));
+[[3.7,[-2.2,0,2.2]],[5.3,[-1.2,1.2]],[6.6,[-2.4,0,2.4]]].forEach(([z,xs])=>xs.forEach(x=>DSPOTS.push({x,z,occ:null,run:true,hype:true})));
 // arka taraf: sahnede eğlenen kalabalık (yorum yazan herkes)
-const CROWD=[];for(let r=0;r<14;r++){const z=2.3-r*1.12;if(z<-13.2)break;const xs=r%2?[-2.45,-1.22,0,1.22,2.45]:[-1.84,-.61,.61,1.84];xs.forEach(x=>CROWD.push({x,z,occ:null,run:true}))}
+const CROWD=[];for(let r=0;r<10;r++){const z=1.9-r*1.6;if(z<-13.2)break;const xs=r%2?[-1.6,0,1.6]:[-2.4,-.8,.8,2.4];xs.forEach(x=>CROWD.push({x,z,occ:null,run:true}))}
 const STAR_SPOT={x:0,z:7.7,occ:null,run:true,star:true,hype:true};
 
 function zoneOf(p){const ax=Math.abs(p.x);
@@ -938,7 +938,7 @@ let flashT=0;
 
 // ================= camera =================
 let focus=null;const focusQ=[];let shotIdx=0,shotT=0,manual=false,drag=null,camAng=0,camR=24,camH=9;
-const SHOTS=[{p:[0,8.2,15],l:[0,1.2,-1.5]},{p:[0,9.5,17],l:[0,1,-2.5]}];const seenIds=new Set();let lastLow=-99,stageBusy=false,curList=null;
+const SHOTS=[{p:[0,11,14.5],l:[0,.8,-2.5]},{p:[0,12,16],l:[0,.6,-3.5]}];const seenIds=new Set();let lastLow=-99,stageBusy=false,curList=null;
 const HALL=[{p:[0,9.2,16],l:[0,.8,-4]},{p:[-9,6.8,2],l:[2,.7,-5]},{p:[9,6.8,2],l:[-2,.7,-5]}];
 function requestFocus(c,dur,low){if(!S.autoCam)return;const it={c,dur,t:0,low:!!low};
   if(low){if(focus||focusQ.length||tNow-lastLow<6)return;lastLow=tNow;focus=it;return}

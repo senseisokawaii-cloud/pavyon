@@ -104,7 +104,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 <button id="testFab">🧪 Deneme</button>
 <div id="testSheet" class="glass">
-  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v4g</small></span><span id="tsClose">✕</span></div>
+  <div class="th"><span>🧪 Deneme <small style="font:600 11px Poppins,sans-serif;color:#ffe7a0;opacity:.85;margin-left:6px">sürüm v4h</small></span><span id="tsClose">✕</span></div>
   <input id="tsName" placeholder="İsim (boş bırakırsan rastgele)">
   <input id="tsMsg" placeholder="Yorum (boş bırakırsan rastgele)">
   <div class="tg">
@@ -118,7 +118,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Poppi
 </div>
 
 <div id="panel" class="glass">
-  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4g</small></h3>
+  <h3>Pavyon Kontrol <small style="font-size:11px;opacity:.6">v4h</small></h3>
   <h4>TikTok bağlantısı</h4>
   <label>WebSocket adresi (TikFinity vb.)</label>
   <input type="text" id="wsUrl" value="ws://127.0.0.1:21213/">
@@ -866,7 +866,9 @@ function genderCmd(text){const t=String(text).toLocaleLowerCase('tr').trim();
   if(/^(değiş|degis|değiştir|degistir)(\s|$|[!.,])/.test(t))return 'toggle';
   return null}
 function onChat(id,nick,text){const c=touch(id,nick);if(!c)return;const g=genderCmd(text);
-  if(g!==null){swapGender(c,g==='toggle'?undefined:g)}say(c,text)}
+  if(g!==null){swapGender(c,g==='toggle'?undefined:g)}say(c,text);
+  if(pendFollow.has(id)){if(likeStage(id,nick))pendFollow.delete(id)}
+  else if((likeCnt.get(id)||0)>=S.cLikes){if(likeStage(id,nick))likeCnt.set(id,0)}}
 function parseRules(){const m=new Map();String(S.rules||'').split('\n').forEach(l=>{const i=l.indexOf('=');if(i<1)return;m.set(l.slice(0,i).trim().toLowerCase(),new Set(l.slice(i+1).split(',').map(x=>x.trim().toLowerCase().replace('ş','s').replace('ı','i')).filter(Boolean)))});return m}
 let RULES=parseRules();
 function onGift(id,nick,coins,giftName){coins=Math.max(1,coins|0);const c=touch(id,nick);
@@ -895,11 +897,13 @@ function massParty(dur){const end=tNow+dur;wildUntil=Math.max(wildUntil,end);
     if(!fr.length)break;const sp=fr.splice(Math.random()*fr.length|0,1)[0];sp.occ=c;c.pspot=sp;c.party=true;c.partyEnd=end;
     route(c,{spot:sp});c.speed=3;c.onArrive=()=>{c.mode='dance';c.faceTo=0;c.speed=0;c.danceUntil=Math.max(c.danceUntil,c.partyEnd);stageBusy=true}}}
 const likeCnt=new Map(),followed=new Set();
-function likeStage(id,nick){const c=touch(id,nick);if(c&&!c.spot&&c.mode!=='dance'){c.likeDance=true;c.fdur=0;c.pendDance=45;goStage(c,false,true);return true}return false}
-function onFollow(id,nick){if(!id||followed.has(id))return;followed.add(id);likeStage(id,nick)}
+const inside=id=>{const c=chars.get(id);return c&&!c.leaving&&!c.npc?c:null};
+function likeStage(id,nick){const c=inside(id);if(c&&!c.spot&&c.mode!=='dance'){c.likeDance=true;c.fdur=0;c.pendDance=45;goStage(c,false,true);return true}return false}
+const pendFollow=new Set();
+function onFollow(id,nick){if(!id||followed.has(id))return;followed.add(id);if(!likeStage(id,nick))pendFollow.add(id)}
 function onLike(id,nick,count,total){const prev=totalLikes;totalLikes=total!=null?Math.max(totalLikes,total):totalLikes+count;
   if(id){const n=(likeCnt.get(id)||0)+(+count||1);
-    if(n>=S.cLikes){const c=touch(id,nick);if(c&&!c.spot&&c.mode!=='dance'){likeCnt.set(id,0);c.likeDance=true;c.fdur=0;c.pendDance=45;goStage(c,false,true)}else likeCnt.set(id,n)}
+    if(n>=S.cLikes){const c=inside(id);if(c&&!c.spot&&c.mode!=='dance'){likeCnt.set(id,0);c.likeDance=true;c.fdur=0;c.pendDance=45;goStage(c,false,true)}else likeCnt.set(id,n)}
     else likeCnt.set(id,n)}
   const c=id&&chars.get(id);if(c)c.clapUntil=tNow+2.5;
   for(const m of MILES)if(prev<m&&totalLikes>=m){massParty(25);confettiBurst(200);rainLeft+=200}updateLikes()}
